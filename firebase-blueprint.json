@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "bl": {
+      "title": "Bordereau de Livraison",
+      "description": "Représente un bordereau de livraison (BL) logistique Maersk",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "L'identifiant unique du BL" },
+        "fa": { "type": "string", "description": "Référence FA" },
+        "bl": { "type": "string", "description": "Référence BL" },
+        "num_facture": { "type": "number", "description": "Le numéro de facture" },
+        "type_contrat": { "type": "string", "enum": ["CLIENT", "FOURNISSEUR"], "description": "Le type de contrat" },
+        "marchandise": { "type": "string", "description": "Le type de marchandise" },
+        "nb_tc": { "type": "number", "description": "Le nombre de conteneurs" },
+        "prix_tc": { "type": "number", "description": "Le tarif unitaire par conteneur" },
+        "montant_ttc": { "type": "number", "description": "Le montant TTC calculé" },
+        "montant_ht": { "type": "number", "description": "Le montant HT calculé" },
+        "taux_ib": { "type": "number", "description": "Le taux AIB retenu à la source en %" },
+        "valeur_ib": { "type": "number", "description": "La valeur calculée de la retenue AIB" },
+        "net": { "type": "number", "description": "Le net à payer calculé" },
+        "statut_maersk": { "type": "string", "enum": ["EN ATTENTE", "PAYE"], "description": "Statut de règlement Maersk" },
+        "bureau": { "type": "number", "description": "La commission de transport bureau calculée" },
+        "date_virement": { "type": "string", "format": "date-time", "description": "Date de réception du virement client" },
+        "montant_virement": { "type": "number", "description": "Le montant réel viré par le client" },
+        "net_reelle": { "type": "number", "description": "Le net réel restant après commission" },
+        "date_echeance": { "type": "string", "format": "date", "description": "Date d'échéance de la facture" },
+        "history": { "type": "string", "description": "L'historique des actions sur ce BL sous format JSON" },
+        "created_at": { "type": "string", "format": "date-time", "description": "Horodatage de création du BL" }
+      },
+      "required": ["id", "fa", "bl", "num_facture", "type_contrat", "marchandise", "nb_tc", "prix_tc", "montant_ttc", "montant_ht", "valeur_ib", "net", "bureau", "statut_maersk"]
+    }
+  },
+  "firestore": {
+    "/bls/{blId}": {
+      "schema": "bl",
+      "description": "Portefeuille des bordereaux de livraison (BLs)"
+    }
+  }
+}

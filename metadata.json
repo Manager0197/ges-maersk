@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Ges Maersk",
+  "description": "Nouvelle version de l\u0027app de partenariat avec Maersk",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

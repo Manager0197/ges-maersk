@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Since our Node backend is proxying requests to Firestore, we allow accesses for verified structures
+    match /bls/{blId} {
+      allow read, write: if true;
+    }
+  }
+}
