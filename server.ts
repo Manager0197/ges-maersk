@@ -70,7 +70,7 @@ function calculateBL(data: any) {
   const prix_tc = Number(data.prix_tc);
   const type_contrat = data.type_contrat;
   const montant_virement = data.montant_virement !== undefined && data.montant_virement !== null ? Number(data.montant_virement) : null;
-  const taux_ib = data.taux_ib !== undefined ? Number(data.taux_ib) : 5;
+  const taux_ib = data.taux_ib !== undefined ? Number(data.taux_ib) : 3;
   
   const montant_ttc = nb_tc * prix_tc;
   const montant_ht = montant_ttc / 1.18;

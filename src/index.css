@@ -1,3 +1,33 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Custom scrollbars to make side-scrolling tables obvious and premium */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 9999px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #3b82f6; /* Accent blue scrollbar thumb */
+  border-radius: 9999px;
+  border: 2px solid #f1f5f9;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-color: #0f172a;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+

@@ -15,10 +15,10 @@ export default function BLFormModal({ onClose, onSuccess, initialData }: BLFormM
     bl: '',
     num_facture: '',
     type_contrat: 'FOURNISSEUR',
-    marchandise: '',
+    marchandise: 'RIZ',
     nb_tc: 1,
     prix_tc: 94000,
-    taux_ib: 5,
+    taux_ib: 3,
     date_echeance: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   });
 
@@ -27,12 +27,12 @@ export default function BLFormModal({ onClose, onSuccess, initialData }: BLFormM
       setFormData({
         fa: initialData.fa,
         bl: initialData.bl,
-        num_facture: initialData.num_facture.toString(),
+        num_facture: initialData.num_facture && initialData.num_facture !== 0 ? initialData.num_facture.toString() : '',
         type_contrat: initialData.type_contrat,
         marchandise: initialData.marchandise,
         nb_tc: initialData.nb_tc,
         prix_tc: initialData.prix_tc,
-        taux_ib: initialData.taux_ib !== undefined ? initialData.taux_ib : 5,
+        taux_ib: initialData.taux_ib !== undefined ? initialData.taux_ib : 3,
         date_echeance: initialData.date_echeance || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       });
     }
@@ -45,10 +45,17 @@ export default function BLFormModal({ onClose, onSuccess, initialData }: BLFormM
   const handleManualSubmit = async (e: React.FormEvent, isQuickEntry: boolean) => {
     e.preventDefault();
     let newId: string | undefined;
+    
+    const numFactureNum = formData.num_facture.trim() === '' ? 0 : Number(formData.num_facture);
+    const payload = {
+      ...formData,
+      num_facture: numFactureNum
+    };
+
     if (initialData) {
-      await updateBL(initialData.id, formData);
+      await updateBL(initialData.id, payload);
     } else {
-      newId = await addBL(formData);
+      newId = await addBL(payload);
     }
     
     if (isQuickEntry && !initialData) {
@@ -89,8 +96,8 @@ export default function BLFormModal({ onClose, onSuccess, initialData }: BLFormM
               <input required name="bl" value={formData.bl} onChange={handleChange} className="w-full px-4 sm:px-3 py-3 sm:py-2 min-h-[44px] border rounded-lg uppercase bg-slate-50 sm:bg-white" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">N° Facture</label>
-              <input required type="number" name="num_facture" value={formData.num_facture} onChange={handleChange} className="w-full px-4 sm:px-3 py-3 sm:py-2 min-h-[44px] border rounded-lg bg-slate-50 sm:bg-white" />
+              <label className="block text-sm font-medium text-slate-700 mb-1">N° Facture <span className="text-xs text-slate-400 font-normal">(optionnel)</span></label>
+              <input type="number" name="num_facture" placeholder="Laisser vide si pas encore facturé" value={formData.num_facture} onChange={handleChange} className="w-full px-4 sm:px-3 py-3 sm:py-2 min-h-[44px] border rounded-lg bg-slate-50 sm:bg-white text-sm" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Contrat</label>
@@ -101,7 +108,7 @@ export default function BLFormModal({ onClose, onSuccess, initialData }: BLFormM
             </div>
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-1">Marchandise</label>
-              <input required name="marchandise" value={formData.marchandise} onChange={handleChange} className="w-full px-4 sm:px-3 py-3 sm:py-2 min-h-[44px] border rounded-lg uppercase bg-slate-50 sm:bg-white" />
+              <input required name="marchandise" value={formData.marchandise} onChange={handleChange} onFocus={(e) => e.target.select()} onClick={(e) => (e.target as HTMLInputElement).select()} className="w-full px-4 sm:px-3 py-3 sm:py-2 min-h-[44px] border rounded-lg uppercase bg-slate-50 sm:bg-white" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Nombre TC</label>

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { formatFCFA } from '../lib/utils';
-import { AlertTriangle, TrendingUp, Download, CheckCircle, FileText } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Download, CheckCircle, FileText, Search } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -8,6 +8,7 @@ import { useBLContext } from '../context/BLContext';
 
 export default function Dettes() {
   const { bls, loading, markBureauSolde, updateStatutMaersk } = useBLContext();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleMarquerSoldeBureau = async (id: string) => {
     await markBureauSolde(id);
@@ -16,6 +17,36 @@ export default function Dettes() {
   const handleMarquerPayeMaersk = async (id: string) => {
     await updateStatutMaersk(id, 'PAYE');
   };
+
+  // Base list filtering for Bureau and Maersk
+  const dettesBureauRaw = useMemo(() => {
+    return bls.filter(b => b.type_contrat === 'CLIENT' && (b.net_reelle === null || b.net_reelle < 0));
+  }, [bls]);
+
+  const dettesMaerskRaw = useMemo(() => {
+    return bls.filter(b => b.statut_maersk !== 'PAYE');
+  }, [bls]);
+
+  // Filtered lists with searching
+  const dettesBureau = useMemo(() => {
+    if (!searchQuery.trim()) return dettesBureauRaw;
+    const q = searchQuery.toLowerCase();
+    return dettesBureauRaw.filter(b => 
+      (b.bl?.toLowerCase().includes(q)) ||
+      (b.marchandise?.toLowerCase().includes(q)) ||
+      (b.fa?.toLowerCase().includes(q))
+    );
+  }, [dettesBureauRaw, searchQuery]);
+
+  const dettesMaersk = useMemo(() => {
+    if (!searchQuery.trim()) return dettesMaerskRaw;
+    const q = searchQuery.toLowerCase();
+    return dettesMaerskRaw.filter(b => 
+      (b.bl?.toLowerCase().includes(q)) ||
+      (b.marchandise?.toLowerCase().includes(q)) ||
+      (b.fa?.toLowerCase().includes(q))
+    );
+  }, [dettesMaerskRaw, searchQuery]);
 
   const exportExcel = () => {
     const data = bls.map(b => ({
@@ -39,13 +70,10 @@ export default function Dettes() {
     const doc = new jsPDF();
     doc.text("Rapport Synthèse des Dettes (TIMES / MAERSK)", 14, 15);
     
-    const dettesBureau = bls.filter(b => b.type_contrat === 'CLIENT' && (b.net_reelle === null || b.net_reelle < 0));
-    const dettesMaersk = bls.filter(b => b.statut_maersk !== 'PAYE');
-
     doc.setFontSize(12);
     doc.text("Dettes envers le Bureau", 14, 25);
     
-    const bureauBody = dettesBureau.map(b => [
+    const bureauBody = dettesBureauRaw.map(b => [
       b.bl, 
       b.nb_tc.toString(), 
       formatFCFA(b.bureau), 
@@ -62,7 +90,7 @@ export default function Dettes() {
     
     doc.text("Dettes de Maersk", 14, finalY + 10);
     
-    const maerskBody = dettesMaersk.map(b => [
+    const maerskBody = dettesMaerskRaw.map(b => [
       b.bl,
       b.type_contrat,
       formatFCFA(b.net),
@@ -78,20 +106,42 @@ export default function Dettes() {
     doc.save("dettes_TIMES.pdf");
   };
 
-  const dettesBureau = bls.filter(b => b.type_contrat === 'CLIENT' && (b.net_reelle === null || b.net_reelle < 0));
-  const dettesMaersk = bls.filter(b => b.statut_maersk !== 'PAYE');
-
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-3xl font-bold text-slate-800">Gestion des Dettes</h2>
+        <div>
+          <h2 className="text-3xl font-bold text-slate-800">Gestion des Dettes</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Suivi des dettes envers le bureau et des créances de Maersk.</p>
+        </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <button onClick={exportExcel} className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 min-h-[44px] bg-emerald-100 text-emerald-700 font-medium rounded-lg hover:bg-emerald-200 transition flex">
+          <button onClick={exportExcel} className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 min-h-[44px] bg-emerald-100 text-emerald-700 font-medium rounded-lg hover:bg-emerald-200 transition flex cursor-pointer">
             <Download className="w-4 h-4" /> Excel
           </button>
-          <button onClick={exportPDF} className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 min-h-[44px] bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition flex">
+          <button onClick={exportPDF} className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 min-h-[44px] bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition flex cursor-pointer">
             <FileText className="w-4 h-4" /> PDF
           </button>
+        </div>
+      </div>
+
+      {/* Barre de recherche sur les Dettes */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4.5 rounded-xl shadow-sm flex items-center gap-3">
+        <Search className="w-5 h-5 text-slate-400 shrink-0" />
+        <div className="flex-1 relative">
+          <input 
+            type="text" 
+            placeholder="Rechercher par BL, marchandise ou FA..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-transparent outline-none text-sm font-medium text-slate-700 dark:text-slate-200"
+          />
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery('')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 font-bold dark:hover:text-slate-200"
+            >
+              Effacer
+            </button>
+          )}
         </div>
       </div>
 

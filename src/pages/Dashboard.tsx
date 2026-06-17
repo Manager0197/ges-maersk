@@ -33,7 +33,7 @@ export default function Dashboard() {
   const [simPreset, setSimPreset] = useState<'IMPORT' | 'EXPORT' | 'CUSTOM'>('IMPORT');
   const [simTc, setSimTc] = useState<number>(5);
   const [simPrixTc, setSimPrixTc] = useState<number>(110000); // Standard CLIENT is 110k, FOURNISSEUR is 94k
-  const [simTauxIb, setSimTauxIb] = useState<number>(5);
+  const [simTauxIb, setSimTauxIb] = useState<number>(3);
   const [useTva, setUseTva] = useState<boolean>(true);
   const [simContract, setSimContract] = useState<'CLIENT' | 'FOURNISSEUR'>('CLIENT');
 
@@ -73,12 +73,12 @@ export default function Dashboard() {
     if (simPreset === 'IMPORT') {
       setSimContract('CLIENT');
       setSimPrixTc(110000);
-      setSimTauxIb(5);
+      setSimTauxIb(3);
       setUseTva(true);
     } else if (simPreset === 'EXPORT') {
       setSimContract('FOURNISSEUR');
       setSimPrixTc(94000);
-      setSimTauxIb(5);
+      setSimTauxIb(3);
       setUseTva(true);
     }
   }, [simPreset]);
@@ -273,7 +273,7 @@ export default function Dashboard() {
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
                     <span className="text-slate-550 dark:text-slate-400 font-medium">Taux fiscal d'Impôt Standard</span>
-                    <span className="font-bold font-mono text-amber-600">5.0% (AIB retenu)</span>
+                    <span className="font-bold font-mono text-amber-600">3.0% (AIB retenu)</span>
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
                     <span className="text-slate-550 dark:text-slate-400 font-medium">Taux de TVA Standard</span>
